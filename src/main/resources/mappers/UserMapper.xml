@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gupao.springbootdemo.user.dao.UserMapper">
+
+    <!-- 字段映射  -->
+    <resultMap id="BaseResultMap" type="com.gupao.springbootdemo.user.domain.User">
+
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="age" property="age" jdbcType="INTEGER"/>
+        <result column="gmt_create" property="gmtCreate" jdbcType="TIMESTAMP"/>
+        <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP"/>
+
+    </resultMap>
+
+    <!-- 共用sql -->
+    <sql id="Base_Column_List">
+        id,name,age,gmt_create,gmt_modified
+    </sql>
+
+    <!-- 共用where sql -->
+    <sql id="Where_Column_List">
+        <if test="obj.name != null">
+            and name = #{obj.name}
+        </if>
+        <if test="obj.age != null">
+            and age = #{obj.age}
+        </if>
+        <if test="obj.gmtCreate != null">
+            and gmt_create = #{obj.gmtCreate}
+        </if>
+        <if test="obj.gmtModified != null">
+            and gmt_modified = #{obj.gmtModified}
+        </if>
+    </sql>
+
+    <!-- 查询 -->
+    <select id="getUserById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        where is_deleted = 'N' and id = #{id}
+    </select>
+
+    <select id="countByPara" resultType="java.lang.Integer">
+        select
+        count(*)
+        from user
+        where is_deleted = 'N'
+        <include refid="Where_Column_List"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="pageByPara" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        where is_deleted='N'
+        and id > #{beginId}
+        <include refid="Where_Column_List"/>
+        order by id asc
+        limit 0,#{pageSize}
+    </select>
+
+    <!-- 列表查询 -->
+    <select id="listByPara" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user
+        where is_deleted='N'
+        <include refid="Where_Column_List"/>
+        order by id asc
+    </select>
+
+    <!-- 插入操作 -->
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="com.gupao.springbootdemo.user.domain.User">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="name != null">
+                name,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="age != null">
+                #{age,jdbcType=INTEGER},
+            </if>
+
+        </trim>
+    </insert>
+
+
+    <!-- 更新 -->
+    <update id="updateById">
+        update user
+        <set>
+            <if test="obj.name != null">
+                name = #{obj.name
+                            ,jdbcType=VARCHAR},
+            </if>
+            <if test="obj.age != null">
+                age = #{obj.age
+                            ,jdbcType=INTEGER},
+            </if>
+            <if test="obj.gmtCreate != null">
+                gmt_create = #{obj.gmtCreate
+                            ,jdbcType=TIMESTAMP},
+            </if>
+            <if test="obj.gmtModified != null">
+                gmt_modified = #{obj.gmtModified
+                            ,jdbcType=TIMESTAMP}
+            </if>
+        </set>
+        where is_deleted = 'N' and id=#{obj.id}
+    </update>
+</mapper>
